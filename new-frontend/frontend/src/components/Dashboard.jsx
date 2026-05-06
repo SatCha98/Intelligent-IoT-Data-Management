@@ -16,10 +16,9 @@ import ScatterPlot from './ScatterPlot.jsx';
 
 
 const Dashboard = () => {
-  const { data, loading, error } = useSensorData(true); // mock mode
+  const { data, loading, error } = useSensorData(false); // live API mode
   const streamNames = useStreamNames(data);
-  const [startTime, endTime] = useTimeRange(data);
-  const timeOptions = useTimeRange(data);
+  const { timeOptions } = useTimeRange(data);
   const [selectedTimeStart, setSelectedTimeStart] = useState('');
   const [selectedTimeEnd, setSelectedTimeEnd] = useState('');
   //const correlation = useCorrelationMatrix(data, streamNames, startTime, endTime);

@@ -1,8 +1,9 @@
 // hooks/useSensorData.js
 import { useState, useEffect } from 'react';
 import SensorData1 from '../data/sensorData1.json';
+import { buildApiUrl } from '../services/apiClient.js';
 
-export const useSensorData = (useMock = false) => {
+export const useSensorData = (useMock = false, endpoint = '/api/streams') => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +27,7 @@ export const useSensorData = (useMock = false) => {
 // }
 
 
-    fetch('/api/sensor-data')
+    fetch(buildApiUrl(endpoint))
       .then((res) => res.json())
       .then((json) => {
         setData(json);
@@ -36,7 +37,7 @@ export const useSensorData = (useMock = false) => {
         setError(err);
         setLoading(false);
       });
-  }, [useMock]);
+  }, [useMock, endpoint]);
 
   return { data, loading, error };
 };
