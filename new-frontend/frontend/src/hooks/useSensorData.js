@@ -1,18 +1,20 @@
 // hooks/useSensorData.js
 import { useState, useEffect } from 'react';
 import SensorData1 from '../data/sensorData1.json';
-import { buildApiUrl } from '../services/apiClient.js';
+import { fetchStreams } from '../services/sensorApi.js';
 
-export const useSensorData = (useMock = false, endpoint = '/api/streams') => {
+export const useSensorData = (useMock = false) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     if (useMock) {
       setData(SensorData1);
       setLoading(false);
-      return;
+      return () => controller.abort();
     }
 
 //     if (useMock) {
@@ -26,18 +28,22 @@ export const useSensorData = (useMock = false, endpoint = '/api/streams') => {
 //   return;
 // }
 
-
-    fetch(buildApiUrl(endpoint))
-      .then((res) => res.json())
+    fetchStreams({ signal: controller.signal })
       .then((json) => {
-        setData(json);
+        setData(Array.isArray(json) ? json : []);
         setLoading(false);
       })
       .catch((err) => {
+        if (err?.name === 'AbortError') {
+          return;
+        }
+
         setError(err);
         setLoading(false);
       });
-  }, [useMock, endpoint]);
+
+    return () => controller.abort();
+  }, [useMock]);
 
   return { data, loading, error };
 };

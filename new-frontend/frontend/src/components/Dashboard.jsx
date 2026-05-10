@@ -28,6 +28,11 @@ const Dashboard = () => {
 
   const [selectedInterval, setSelectedInterval] = useState(intervals[0]);
 
+  const hasInvalidTimeRange =
+    selectedTimeStart &&
+    selectedTimeEnd &&
+    new Date(selectedTimeStart).getTime() > new Date(selectedTimeEnd).getTime();
+
   
 
 
@@ -41,6 +46,11 @@ const Dashboard = () => {
   const streamCount = selectedStreams.length;
 
   const handleSubmit = () => {
+  if (hasInvalidTimeRange) {
+    console.warn('Invalid time range: Start time is after end time.');
+    return;
+  }
+
   console.log('Selected Time Range:', selectedTimeStart, '→', selectedTimeEnd);
 
   
@@ -70,6 +80,12 @@ const Dashboard = () => {
         <li>If no meaningful scatter plot is available for the most correlated pair, it means one or both streams lack variance in the selected time range.</li>
         <li>If no time range is selected, the entire dataset is used.</li>
       </ol>
+
+    {hasInvalidTimeRange && (
+      <p style={{ color: '#b00020', fontWeight: 600 }}>
+        Invalid time range. Please select a start time that is earlier than the end time.
+      </p>
+    )}
     
     <h3> Total Data Points in Dataset: {data.length} | 
       
@@ -111,6 +127,7 @@ const Dashboard = () => {
               timeOptions={timeOptions}
               selectedTime={selectedTimeStart}
               setSelectedTime={setSelectedTimeStart}
+              placeholder="Select start time"
             />
           </div>
           <div>
@@ -119,6 +136,7 @@ const Dashboard = () => {
               timeOptions={timeOptions}
               selectedTime={selectedTimeEnd}
               setSelectedTime={setSelectedTimeEnd}
+              placeholder="Select end time"
             />
           </div>
             {/* this button for future use */}
