@@ -4,6 +4,7 @@ export const useFilteredData = (data, { startTime, endTime, minEntryId, maxEntry
   return useMemo(() => {
     if (!data || data.length === 0) return [];
 
+    // Ensure selectedStreams is always handled safely as an array
     const safeSelectedStreams = Array.isArray(selectedStreams) ? selectedStreams : [];
 
     const intervalToMs = {
@@ -17,7 +18,7 @@ export const useFilteredData = (data, { startTime, endTime, minEntryId, maxEntry
     const parsedStartTime = startTime ? new Date(startTime).getTime() : null;
     const parsedEndTime = endTime ? new Date(endTime).getTime() : null;
 
-    // If the user selected an invalid range, return no rows.
+    // If the user selected an invalid range, return an empty array immediately
     if (
       Number.isFinite(parsedStartTime) &&
       Number.isFinite(parsedEndTime) &&
@@ -30,7 +31,7 @@ export const useFilteredData = (data, { startTime, endTime, minEntryId, maxEntry
       const entryTime = new Date(entry.created_at).getTime();
       const entryId = entry.entry_id;
 
-      // Ignore rows with invalid timestamps to avoid unstable filtering.
+      // Ignore rows with invalid timestamps to avoid unstable filtering
       if (!Number.isFinite(entryTime)) {
         return false;
       }
@@ -46,7 +47,7 @@ export const useFilteredData = (data, { startTime, endTime, minEntryId, maxEntry
       return timeMatch && idMatch;
     });
 
-    // Ensure deterministic interval sampling even if backend rows are unordered.
+    // Ensure deterministic interval sampling even if backend rows are unordered
     const orderedRows = [...filteredRows].sort((a, b) => {
       const aTime = new Date(a.created_at).getTime();
       const bTime = new Date(b.created_at).getTime();
@@ -79,6 +80,7 @@ export const useFilteredData = (data, { startTime, endTime, minEntryId, maxEntry
         created_at: entry.created_at,
       };
 
+      // Map safely using the array fallback and parse selected streams
       safeSelectedStreams.forEach((stream) => {
         if (entry.hasOwnProperty(stream)) {
           filteredEntry[stream] = parseFloat(entry[stream]);
@@ -87,6 +89,5 @@ export const useFilteredData = (data, { startTime, endTime, minEntryId, maxEntry
 
       return filteredEntry;
     });
-  }, [data, startTime, endTime, 
-    minEntryId, maxEntryId, selectedStreams, interval]);
+  }, [data, startTime, endTime, minEntryId, maxEntryId, selectedStreams, interval]);
 };
